@@ -110,6 +110,7 @@ const displayFields = [
   ['sample-auto-fit', 'sampleAutoFit', true],
   ['paired-movement-sampling', 'pairedMovementSampling', true],
   ['note-size', 'noteSize', 200],
+  ['smooth-scrolling', 'smoothScrolling', true],
   ['wheel-limit-audio-start', 'wheelStopAtAudioStart', true],
   ['draw-event-curves', 'drawEventCurves', true],
   ['pick-preview-noise-areas', 'pickPreviewNoiseAreas', true],
@@ -506,7 +507,7 @@ function selectOverviewLine(index) {
 }
 const previewWheel = event => {
   event.preventDefault();
-  playback.wheel(event, { ...preferences.settings, scrollSpeed: editorPreferences.scrollSpeed ?? preferences.settings.scrollSpeed, wheelStopAtAudioStart: editorPreferences.wheelStopAtAudioStart ?? preferences.settings.wheelStopAtAudioStart ?? true }, performance.now() / 1000);
+  playback.wheel(event, { ...preferences.settings, smoothScrolling: editorPreferences.smoothScrolling ?? preferences.settings.smoothScrolling ?? true, scrollSpeed: editorPreferences.scrollSpeed ?? preferences.settings.scrollSpeed, wheelStopAtAudioStart: editorPreferences.wheelStopAtAudioStart ?? preferences.settings.wheelStopAtAudioStart ?? true }, performance.now() / 1000);
 };
 element('.preview-wrap').addEventListener('wheel', previewWheel, { passive: false });
 const pickPreviewLine = (renderer, event) => {
@@ -1597,7 +1598,9 @@ window.addEventListener('keydown', async event => {
   let handled = true;
   try {
     if (event.repeat && ['NumberMirror', 'NumberFill', 'Pause', 'AddHold', 'AddEvent', 'AddTap', 'StartView', 'EndView', 'JumpView', 'ReplayView', 'StartView_HOLD', 'JumpView_HOLD', 'ToggleMultiLine', 'SwitchMultiLineMode', 'SwitchLock', 'StickNext', 'TimeAttach'].includes(action)) { event.preventDefault(); return; }
-    if (action === 'TimeAttach') seekBeat(Math.round(currentBeat() * timeline.division) / timeline.division);
+    if (action === 'OpenHotkeySettings') openHotkeySettings();
+    else if (action === 'PreviousLine' || action === 'NextLine') switchLine(action === 'PreviousLine' ? -1 : 1);
+    else if (action === 'TimeAttach') seekBeat(Math.round(currentBeat() * timeline.division) / timeline.division);
     else if (!preview.visible && action?.startsWith('Page')) nudgeSelection(session, { PageLeft: 'ArrowLeft', PageRight: 'ArrowRight', PageUp: 'ArrowUp', PageDown: 'ArrowDown' }[action], timeline.division, timeline.gridCount);
     else if (timeline.eventInteraction.pending && /^[0-9]$/.test(event.key) && !event.ctrlKey && !event.altKey) timeline.eventInteraction.place(undefined, undefined, Number(event.key) || 10);
     else if (action === 'Save') { event.preventDefault(); await save(); }
@@ -1889,11 +1892,12 @@ listen('#library', () => {
   });
 });
 listen('#preferences', () => settingsDialog.showModal());
-listen('#advanced-preferences', () => {
+listen('#advanced-preferences', openHotkeySettings);
+function openHotkeySettings() {
   settingsDialog.close();
   pasteGesture.cancel();
   showHotkeySettings(preferences, async next => { await storePreferences(next); applyPreferences(next); });
-});
+}
 readPreferences().then(saved => {
   if (saved) applyPreferences(migratePreferences(JSON.stringify(saved.originalSettings), Object.entries(saved.originalHotkeys).map(([key, value]) => `${key} ${value}`).join('\n'), saved.originalUI));
 }).catch(error => status(`无法读取偏好设置：${error.message}`));

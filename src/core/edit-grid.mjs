@@ -25,6 +25,13 @@ export function placementRange(first, second) {
   return end - start < 0.001 ? null : { start, end };
 }
 
+// WheelEvent deltaMode: pixels, lines, or pages. Preserve fractional motion.
+export function wheelUnits(event) {
+  const delta = Number(event.deltaY);
+  if (!Number.isFinite(delta)) return 0;
+  return delta / (event.deltaMode === 1 ? 3 : event.deltaMode === 2 ? 1 : 100);
+}
+
 export function wheelSeconds(delta, duration, speed, rate, accelerated = false, burstSeconds = 0, alt = false) {
   const acceleration = accelerated ? 1 + 4 * (Math.min(4, Math.max(0, burstSeconds)) / 4) ** 3 : 1;
   return -Math.sign(delta) * duration / 1000000 * speed * rate * (alt ? 500 : 100) * acceleration;

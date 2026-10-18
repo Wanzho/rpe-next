@@ -12,6 +12,7 @@ export const DEFAULT_HOTKEYS = {
   Delete: 'DELETE', QuickDelete: 'D', LastBeat: 'LEFTARROW', NextBeat: 'RIGHTARROW', Esc: 'ESCAPE',
   StartView: 'I', EndView: 'O', JumpView: 'P', ReplayView: 'LEFTBRACKET', StartView_HOLD: 'T', JumpView_HOLD: 'U',
   SwitchUI: 'LEFTALT&N', ResetCamera: 'LEFTCTRL&M', CurveBegin: 'LEFTCTRL&F', CurveEnd: 'LEFTCTRL&G',
+  PreviousLine: 'LEFTALT&UPARROW', NextLine: 'LEFTALT&DOWNARROW', OpenHotkeySettings: 'LEFTCTRL&LEFTSHIFT&K',
   ToggleMultiLine: 'J', SwitchMultiLineMode: 'K',
   ShowLineInfo: 'TAB', PageLeft: 'LEFTARROW', PageRight: 'RIGHTARROW', PageUp: 'UPARROW', PageDown: 'DOWNARROW',
 };
@@ -41,6 +42,7 @@ export function migratePreferences(settingsText = '{}', hotkeyText = '', uiText 
       lineScale: finiteRange(originalSettings.LineScale, 0.1, 10, DEFAULT_SETTINGS.lineScale),
       gridCount: finiteRange(originalSettings.GridlineCount, 2, 100, DEFAULT_SETTINGS.gridCount),
       scrollSpeed: finiteRange(originalSettings.ScrollSpeed, 0.1, 100, DEFAULT_SETTINGS.scrollSpeed),
+      smoothScrolling: DEFAULT_SETTINGS.smoothScrolling,
       wheelStopAtAudioStart: true,
       drawEventCurves: true,
       backgroundAlpha: finiteRange(originalSettings.Alpha, 0, 255, DEFAULT_SETTINGS.backgroundAlpha * 255) / 255,
